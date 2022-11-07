@@ -1,0 +1,445 @@
+//If using legacy editor you have to deploy this as a new webApp (under project version)everytime you make a change
+
+var timeZone="GMT+2";
+var dateTimeFormat="dd/MM/yyyy HH:mm:ss";
+var logSpreadSheetId="1WJTJBXCZM0Du_TjKQwRrcAMvxARIGfNN5w5osys4I9Q";
+
+function sendEmail(message, id) {
+    var subject = 'Something wrong with ' + id;
+    MailApp.sendEmail(emailAddress, subject, message);
+
+}
+
+function doGet(e) {
+
+   var category=''; //blank cos we don't want any returned data in log sheet (rawupload sheet)
+      var text=''; //blank cos we don't want any returned data in log sheet (rawupload sheet)
+      var name=''; //blank cos we don't want any returned data in log sheet (rawupload sheet)
+  var json;
+  var error="idk";
+    Logger.log(JSON.stringify(e)); // view parameters
+    var result = 'Ok'; // assume success
+    if (e.parameter == 'undefined') {
+        result = 'No Parameters';
+    } else {
+
+        var uid = '';
+        var id = '';  //POD id name no spacs or special characters
+        var onlyPing=false;
+        var category='';
+        var error = '';
+        var entrance ='';  //not used
+        var stages ='';
+        var stage1time ='';
+        var stage2time ='';
+        var stage3time ='';
+        var stage4time ='';
+        var stage5time ='';
+        var stage6time ='';      
+        var stage7time ='';
+        var stage8time ='';          
+        var totaltime ='';
+        var ss1startraw='';
+        var ss1endraw='';
+        var ss2startraw='';
+        var ss2endraw='';
+        var ss3startraw='';
+        var ss3endraw='';
+        var ss4startraw='';
+        var ss4endraw='';
+        var ss5startraw='';
+        var ss5endraw='';
+        var ss6startraw='';
+        var ss6endraw='';
+        var ss7startraw='';
+        var ss7endraw='';
+        var ss8startraw='';
+        var ss8endraw='';
+        for (var param in e.parameter) {
+
+            var value = stripQuotes(e.parameter[param]);
+
+            switch (param) {
+                case 'uid':
+                    uid = value;
+                    break;
+                case 'id':
+                    id = value;
+                    break;
+                case 'category':
+                    category = value;
+                    break;      
+                case 'stages':
+                    stages = value;
+                    break;                  
+                case 'stage1time':
+                    stage1time = value;
+                    break;
+                case 'stage2time':
+                    stage2time = value;
+                    break;   
+                case 'stage3time':
+                    stage3time = value;
+                    break;
+                case 'stage4time':
+                    stage4time = value;
+                    break; 
+                case 'stage5time':
+                    stage5time = value;
+                    break;
+                case 'stage6time':
+                    stage6time = value;
+                    break;   
+                case 'stage7time':
+                    stage7time = value;
+                    break;
+                case 'stage8time':
+                    stage8time = value;
+                    break;                
+                case 'totaltime':
+                    totaltime = value;
+                    break;
+                case 'ss1startraw':
+                    ss1startraw = value;
+                    break;
+                case 'ss1endraw':
+                    ss1endraw = value;
+                    break;                
+                case 'ss2startraw':
+                    ss2startraw = value;
+                    break;
+                case 'ss2endraw':
+                    ss2endraw = value;
+                    break;  
+                case 'ss3startraw':
+                    ss3startraw = value;
+                    break;
+                case 'ss3endraw':
+                    ss3endraw = value;
+                    break;            
+                case 'ss4startraw':
+                    ss4startraw = value;
+                    break;
+                case 'ss4endraw':
+                    ss4endraw = value;
+                    break;   
+                case 'ss5startraw':
+                    ss5startraw = value;
+                    break;
+                case 'ss5endraw':
+                    ss5endraw = value;
+                    break;                  
+                case 'ss6startraw':
+                    ss6startraw = value;
+                    break;
+                case 'ss6endraw':
+                    ss6endraw = value;
+                    break; 
+                case 'ss7startraw':
+                    ss7startraw = value;
+                    break;
+                case 'ss7endraw':
+                    ss7endraw = value;
+                    break; 
+                case 'ss8startraw':
+                    ss8startraw = value;
+                    break;
+                case 'ss8endraw':
+                    ss8endraw = value;
+                    break;                  
+       default:
+                    result = "unsupported parameter";
+            }
+        }
+      
+     
+      var sheet=SpreadsheetApp.getActive().getActiveSheet();
+     
+      var data = sheet.getDataRange().getValues();
+    if (data.length == 0)
+        return;
+    for (var i = 0; i < data.length; i++) {
+
+        if (data[i][0] ==uid)
+        {
+         // name=data[i][1];  //taken these out cos we don't want any retuened data
+         // category=data[i][6]; //taken these out cos we don't want any retuened data
+         // text=data[i][3]; //taken these out cos we don't want any retuened data
+          break;
+        }
+       
+    }
+      
+      
+  addLog(uid,name,category,stages,stage1time,stage2time,stage3time,stage4time,stage5time,stage6time,stage7time,stage8time,totaltime,
+         ss1startraw,ss1endraw,ss2startraw,ss2endraw,ss3startraw,ss3endraw,ss4startraw,ss4endraw,ss5startraw,ss5endraw,ss6startraw,
+         ss6endraw,ss7startraw,ss7endraw,ss8startraw,ss8endraw,id);
+
+
+
+  }   
+
+     json = {
+    'category':category, 
+    'name': name,
+    'text':text,     
+    'error':error}
+     
+     result=(category+":"+name+":"+text);result=(category+":"+name+":"+text);
+  return ContentService.createTextOutput(result);
+//  return ContentService.createTextOutput(JSON.stringify(json) ).setMimeType(ContentService.MimeType.JSON); 
+
+  
+}
+
+
+function addLog(uid,name,category,stages,stage1time,stage2time,stage3time,stage4time,stage5time,stage6time,
+                stage7time,stage8time,totaltime,ss1startraw,ss1endraw,ss2startraw,ss2endraw,ss3startraw,
+                ss3endraw,ss4startraw,ss4endraw,ss5startraw,ss5endraw,ss6startraw,ss6endraw,ss7startraw,
+                ss7endraw,ss8startraw,ss8endraw,id) {  
+
+
+    var spr=SpreadsheetApp.openById(logSpreadSheetId);
+    var sheet = spr.getSheets()[0];
+    var data = sheet.getDataRange().getValues();
+    var pos = sheet.getLastRow() + 1;
+    var rowData = [];
+  
+  rowData[0] = uid;  //race number from watch scan
+  rowData[1] =  ("=row()-1");  //  Overall Position
+  rowData[2] =  ("=IF(R[0]C[2]<>\"\",COUNTIF($E$2:R[0]C[2],R[0]C[2]),\"\")");  //Calculates Cat position from Column E
+  rowData[3] =  ("=ARRAYFORMULA(IFERROR(VLOOKUP(R[0]C[-3],EntryList!$A$2:$G,{2,7},FALSE),\"\"))"); //Lookup name and Category from entrylist columns 2&7 (B&F)
+  rowData[5] =  ("=COUNT(R[0]C[38]:R[0]C[45])"); //Calculate Number of stages from Calculated Times Comumns AR:AY
+  rowData[6] =  ("=IFERROR(CONCATENATE(TEXT(R[0]C[37],\"[hh]:mm:ss.0\"),\"\",\"(\",R[0]C[45],\")\"),\"\")"); //Display Time and Rank from Calulated Columns
+  rowData[7] =  ("=IFERROR(CONCATENATE(TEXT(R[0]C[37],\"[hh]:mm:ss.0\"),\"\",\"(\",R[0]C[45],\")\"),\"\")"); //Display Time and Rank from Calulated Columns
+  rowData[8] =  ("=IFERROR(CONCATENATE(TEXT(R[0]C[37],\"[hh]:mm:ss.0\"),\"\",\"(\",R[0]C[45],\")\"),\"\")"); //Display Time and Rank from Calulated Columns
+  rowData[9] =  ("=IFERROR(CONCATENATE(TEXT(R[0]C[37],\"[hh]:mm:ss.0\"),\"\",\"(\",R[0]C[45],\")\"),\"\")"); //Display Time and Rank from Calulated Columns
+  rowData[10] =  ("=IFERROR(CONCATENATE(TEXT(R[0]C[37],\"[hh]:mm:ss.0\"),\"\",\"(\",R[0]C[45],\")\"),\"\")"); //Display Time and Rank from Calulated Columns
+  rowData[11] =  ("=IFERROR(CONCATENATE(TEXT(R[0]C[37],\"[hh]:mm:ss.0\"),\"\",\"(\",R[0]C[45],\")\"),\"\")"); //Display Time and Rank from Calulated Columns
+  rowData[12] =  ("=IFERROR(CONCATENATE(TEXT(R[0]C[37],\"[hh]:mm:ss.0\"),\"\",\"(\",R[0]C[45],\")\"),\"\")"); //Display Time and Rank from Calulated Columns
+  rowData[13] =  ("=IFERROR(CONCATENATE(TEXT(R[0]C[37],\"[hh]:mm:ss.0\"),\"\",\"(\",R[0]C[45],\")\"),\"\")"); //Display Time and Rank from Calulated Columns
+  rowData[14] =  ("=SUM(R[0]C[29]:R[0]C[36])"); //Display Sum Time from Calculated Time stages between AR:AY
+  rowData[15] =  ("=IFERROR(IF(R[0]C[-10]-R[-1]C[-10]<0,\"-\",IFERROR(TEXT((R[0]C[-1]-$O$2),\"mm:ss\"),\"-\")),\"\")"); //Calculate Time behind leader if number of stages from previous position is the same
+  rowData[16] =  ("=IFERROR(IF(R[0]C[-11]-R[-1]C[-11]<0,\"-\",IFERROR(TEXT((R[0]C[-2]-R[-1]C[-2]),\"mm:ss\"),\"-\")),\"\")"); //Calculate Time behind position if number of stages from previous position is the same
+  rowData[17] = stages; //number of stages from watch scan
+  rowData[18] = stage1time;
+  rowData[19] = stage2time;
+  rowData[20] = stage3time; 
+  rowData[21] = stage4time;
+  rowData[22] = stage5time;
+  rowData[23] = stage6time;
+  rowData[24] = stage7time;
+  rowData[25]  = stage8time;
+  rowData[26] = totaltime;
+  rowData[27] = ss1startraw;
+  rowData[28] = ss1endraw;
+  rowData[29] = ss2startraw;
+  rowData[30] = ss2endraw;
+  rowData[31] = ss3startraw;
+  rowData[32] = ss3endraw;
+  rowData[33] = ss4startraw;
+  rowData[34] = ss4endraw;
+  rowData[35] = ss5startraw;
+  rowData[36] = ss5endraw;
+  rowData[37] = ss6startraw;
+  rowData[38] = ss6endraw;
+  rowData[39] = ss7startraw;
+  rowData[40] = ss7endraw;
+  rowData[41] = ss8startraw;
+  rowData[42] = ss8endraw;
+  rowData[43] = ("=IF((OR(R[0]C[-16]=0,R[0]C[-15]=0,R[0]C[-15]-R[0]C[-16]<=0)),\"DNS/DNF\",(R[0]C[-15]-R[0]C[-16])/86400000)"); //Stage 1 End (AC)- Stage 1 Start(AB), convert to time or display DNS/DNF error
+  rowData[44] = ("=IF((OR(R[0]C[-15]=0,R[0]C[-14]=0,R[0]C[-14]-R[0]C[-15]<=0)),\"DNS/DNF\",(R[0]C[-14]-R[0]C[-15])/86400000)"); //Stage 2 End (AE)- Stage 2 Start(AD), convert to time or display DNS/DNF error
+  rowData[45] = ("=IF((OR(R[0]C[-14]=0,R[0]C[-13]=0,R[0]C[-13]-R[0]C[-14]<=0)),\"DNS/DNF\",(R[0]C[-13]-R[0]C[-14])/86400000)"); //Stage 3 End (AG)- Stage 3 Start(AF), convert to time or display DNS/DNF error
+  rowData[46] = ("=IF((OR(R[0]C[-13]=0,R[0]C[-12]=0,R[0]C[-12]-R[0]C[-13]<=0)),\"DNS/DNF\",(R[0]C[-12]-R[0]C[-13])/86400000)"); //Stage 4 End (AI)- Stage 4 Start(AH), convert to time or display DNS/DNF error
+  rowData[47] = ("=IF((OR(R[0]C[-12]=0,R[0]C[-11]=0,R[0]C[-11]-R[0]C[-12]<=0)),\"DNS/DNF\",(R[0]C[-11]-R[0]C[-12])/86400000)"); //Stage 5 End (AK)- Stage 5 Start(AJ), convert to time or display DNS/DNF error
+  rowData[48] = ("=IF((OR(R[0]C[-11]=0,R[0]C[-10]=0,R[0]C[-10]-R[0]C[-11]<=0)),\"DNS/DNF\",(R[0]C[-10]-R[0]C[-11])/86400000)"); //Stage 6 End (AM)- Stage 6 Start(AL), convert to time or display DNS/DNF error
+  rowData[49] = ("=IF((OR(R[0]C[-10]=0,R[0]C[-9]=0,R[0]C[-9]-R[0]C[-10]<=0)),\"DNS/DNF\",(R[0]C[-9]-R[0]C[-10])/86400000)"); //Stage 7 End (AO)- Stage 7 Start(AN), convert to time or display DNS/DNF error
+  rowData[50] = ("=IF((OR(R[0]C[-9]=0,R[0]C[-8]=0,R[0]C[-8]-R[0]C[-9]<=0)),\"DNS/DNF\",(R[0]C[-8]-R[0]C[-9])/86400000)"); //Stage 8 End (AQ)- Stage 8 Start(AP), convert to time or display DNS/DNF error
+  rowData[51] = ("=IFERROR(RANK(R[0]C[-8],$AR$2:$AR,1),\"\")");    //Rank last Row of AZ,to 8 Columns left(ie column AR)
+  rowData[52] = ("=IFERROR(RANK(R[0]C[-8],$AS$2:$AS,1),\"\")");    //Rank last Row of BA,to 8 Columns left(ie column AS)
+  rowData[53] = ("=IFERROR(RANK(R[0]C[-8],$AT$2:$AT,1),\"\")");    //Rank last Row of BB,to 8 Columns left(ie column AT)
+  rowData[54] = ("=IFERROR(RANK(R[0]C[-8],$AU$2:$AU,1),\"\")");    //Rank last Row of BC,to 8 Columns left(ie column AU)
+  rowData[55] = ("=IFERROR(RANK(R[0]C[-8],$AV$2:$AV,1),\"\")");    //Rank last Row of BD,to 8 Columns left(ie column AV)
+  rowData[56] = ("=IFERROR(RANK(R[0]C[-8],$AW$2:$AW,1),\"\")");    //Rank last Row of BE,to 8 Columns left(ie column AW)
+  rowData[57] = ("=IFERROR(RANK(R[0]C[-8],$AX$2:$AX,1),\"\")");    //Rank last Row of BF,to 8 Columns left(ie column AX)
+  rowData[58] = ("=IFERROR(RANK(R[0]C[-8],$AY$2:$AY,1),\"\")");    //Rank last Row of BG,to 8 Columns left(ie column AY)
+  rowData[59] = Utilities.formatDate(new Date(), timeZone, dateTimeFormat); //time of scan used to sort data so that delete duplicates deletes oldest scan
+  rowData[60]= id;  //ID of scan POD HQ, Mid Race, End SS1 etc
+  rowData[61] =  ("=IF(R[0]C[-35]=R[0]C[-47],,\"Times have been edited\")");  //Leave message in column BJ if calc times different to raw times (due to edited SS end/ss finish times times)
+  rowData[62] =  ("=IFERROR(ROUND(AVERAGE(R[0]C[-11]:R[0]C[-4])),\"\")");  // calculate average stage position between ss1 - ss8
+  rowData[63] =  ("=IFERROR(INDEX(($AR$2:$AR*86400000), MATCH(R[0]C[-1], $AZ$2:$AZ, 0),\"\"))");  // grabs the times of ss1 based on the average stage position value
+  rowData[64] =  ("=IFERROR(INDEX(($AS$2:$AS*86400000), MATCH(R[0]C[-2], $BA$2:$BA, 0),\"\"))");  // grabs the times of ss2 based on the average stage position value
+  rowData[65] =  ("=IFERROR(INDEX(($AT$2:$AT*86400000), MATCH(R[0]C[-3], $BB$2:$BB, 0),\"\"))");  // grabs the times of ss3 based on the average stage position value
+  rowData[66] =  ("=IFERROR(INDEX(($AU$2:$AU*86400000), MATCH(R[0]C[-4], $BC$2:$BC, 0),\"\"))");  // grabs the times of ss4 based on the average stage position value
+  rowData[67] =  ("=IFERROR(INDEX(($AV$2:$AV*86400000), MATCH(R[0]C[-5], $BD$2:$BD, 0),\"\"))");  // grabs the times of ss5 based on the average stage position value
+  rowData[68] =  ("=IFERROR(INDEX(($AW$2:$AW*86400000), MATCH(R[0]C[-6], $BE$2:$BE, 0),\"\"))");  // grabs the times of ss6 based on the average stage position value
+  rowData[69] =  ("=IFERROR(INDEX(($AX$2:$AX*86400000), MATCH(R[0]C[-7], $BF$2:$BF, 0),\"\"))");  // grabs the times of ss7 based on the average stage position value
+  rowData[70] =  ("=IFERROR(INDEX(($AY$2:$AY*86400000), MATCH(R[0]C[-8], $BG$2:$BG, 0),\"\"))");  // grabs the times of ss8 based on the average stage position value
+  var newRange = sheet.getRange(pos, 1, 1, rowData.length);
+    newRange.setValues([rowData]);
+    multiSortColumns();
+    DeleteEmptyRows();   
+}
+
+/**
+ * Remove leading and trailing single or double quotes
+ */
+function stripQuotes(value) {
+    return value.replace(/^["']|['"]$/g, "");
+}
+
+
+
+
+SHEET_NAME = "RawUpload";
+  SORT_DATA_RANGE = "A2:BX";
+  SORT_ORDER = [
+    {column: 6, ascending: false},  // Stages column number, sorting by descending order
+    {column: 15, ascending: true}, // Display Time column number, sort by ascending order 
+    {column: 60, ascending: false}, //Scan Time column number, sorting by descending order
+  ];
+  
+    
+function multiSortColumns(){  //Sorts by stage, time  removes older scans
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_NAME);
+  var range = sheet.getRange(SORT_DATA_RANGE);
+  var maxRows = sheet.getMaxRows(); 
+  var lastRow = sheet.getLastRow();
+  
+  range.sort(SORT_ORDER);
+  range.removeDuplicates([1]); //Deletes duplicates in column A (leaving the oldest scan)
+  DeleteEmptyRows();
+}
+
+function DeleteEmptyRows(){
+  
+  SHEET_NAME = "RawUpload";
+  SORT_DATA_RANGE = "A2:BX";
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_NAME);
+  var range = sheet.getRange(SORT_DATA_RANGE);
+  var maxRows = sheet.getMaxRows(); 
+  var lastRow = sheet.getLastRow();
+  if (maxRows-lastRow != 0){
+      sheet.deleteRows(lastRow+1, maxRows-lastRow);
+      }
+}
+
+
+/*
+// Function to delete agecategory sheets but not others
+function DeleteAgeCategorySheets() {
+var ss = SpreadsheetApp.getActiveSpreadsheet();
+var sheets = ss.getSheets();
+for (i = 0; i < sheets.length; i++) {
+switch(sheets[i].getSheetName()) {
+case "RawUpload":
+case "Overall Results":
+case "Positional Heat Map":
+case "Helpers":
+case "to do":
+case "App: Comments":
+case "Helpers":
+case "Race Setup":
+case "EntryList":
+case "App: Metadata":
+case "AgeCategories":
+case "Other Age Category Options":
+case "Age Category Tab Reference":
+case "Other Age Category Options":
+break;
+
+default:
+ss.deleteSheet(sheets[i]);}}}
+*/
+
+//Gets Sheet Name and puts value in Cell wherever you type =GetSheetName() 
+function GetSheetName() {
+return SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getName();
+}
+
+//creates and names alist of tabs by According to uniquique age caegories list in Helpers-Column AP
+function CreateFilteredCategoryResults() {  
+var ss = SpreadsheetApp.getActiveSpreadsheet();
+var templateSheet = ss.getSheetByName("AgeCategoryTemplate");
+var sheet1 = ss.getSheetByName("Helpers")
+   var getNames = sheet1.getRange("AU2:AU").getValues();
+
+for (var i = 0; i < getNames.length; i++) {
+    var copy = ss.getSheetByName(getNames[i]);
+    if (copy) {
+        Logger.log("Sheet already exists");
+    } else {
+        templateSheet.copyTo(ss).setName(getNames[i]);
+        ss.setActiveSheet(ss.getSheetByName(getNames[i]));
+        RefreshPage();
+        ss.moveActiveSheet(ss.getNumSheets());
+    }
+}
+}
+
+
+  
+//autofills cell A2A to to cell A1 and deletes C12 to refresh the sheet sheetname function.Only use this macro in conjunctions with CreateShopStatements //macro!
+function RefreshPage() {  
+var spreadsheet = SpreadsheetApp.getActive();
+  spreadsheet.getRange('A2').activate();
+  spreadsheet.getActiveRange().autoFill(spreadsheet.getRange('A2:A1'), SpreadsheetApp.AutoFillSeries.DEFAULT_SERIES);
+  spreadsheet.getActiveRangeList().clear({contentsOnly: true, skipFilteredRows: true});
+    spreadsheet.getRange('A2').activate();
+  spreadsheet.getRange('A3').moveTo(spreadsheet.getActiveRange());
+  spreadsheet.getRange('1:1').activate();
+  spreadsheet.getActiveSheet().hideRows(spreadsheet.getActiveRange().getRow(), spreadsheet.getActiveRange().getNumRows());
+  spreadsheet.getRange('2:2').activate();
+};
+
+function GlobalRegistrationChange() {
+  // Fetch the monthly sales
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('EntryList');
+  var triggercell = sheet.getRange('AR2')
+  var triggercellvalues = triggercell.getValues();
+  if (triggercellvalues == "unregister all")
+    UnregisterAll();
+  if (triggercellvalues == "register all")
+    RegisterAll();    
+}
+
+function UnregisterAll() {
+var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('EntryList');
+var dataRange = sheet.getRange('O2:O');
+var values = dataRange.getValues();
+
+  for (var i = 0; i < values.length; i++) {
+  for (var j = 0; j < values[i].length; j++) {
+if (values[i][j] == true) {
+  values[i][j] = false;
+}
+  }
+}
+dataRange.setValues(values);}
+
+function RegisterAll() {
+var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('EntryList');
+var dataRange = sheet.getRange('O2:O');
+var values = dataRange.getValues();
+for (var i = 0; i < values.length; i++) {
+  for (var j = 0; j < values[i].length; j++) {
+if (values[i][j] == false) {
+  values[i][j] = true;
+}
+  }
+}
+dataRange.setValues(values);}
+
+function print() {
+  var spreadsheet = SpreadsheetApp.getActive();
+  spreadsheet.getRange('A2:K2').activate();
+};
+
+function print2() {
+  var spreadsheet = SpreadsheetApp.getActive();
+  spreadsheet.getRange('G2:G7').activate();
+};
